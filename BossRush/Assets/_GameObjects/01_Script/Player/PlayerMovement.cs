@@ -44,11 +44,19 @@ public class PlayerMovement : MonoBehaviour
         public float maxGravity;
         public float minGravity;
     }
+    
+    [System.Serializable]
+    private class RotationData
+    {
+        public float rotationSpeed;
+        public float rotationXSensitivity;
+        public Vector3 finalRotationAngle;
+    }
 
     [Header("Input")]
     [SerializeField] private Vector2 inputDir;
-    [FormerlySerializedAs("isRunning")]
     [SerializeField] private bool isWalking;
+    [SerializeField] private float mouseMoveX;
 
     [Header("Movement Data")]
     [SerializeField] private MovementData movementData;
@@ -58,6 +66,9 @@ public class PlayerMovement : MonoBehaviour
 
     [Header("Gravity Data")]
     [SerializeField] private GravityData gravityData;
+
+    [Header("Rotation Data")]
+    [SerializeField] private RotationData rotationData;
 
     private CharacterController characterController;
     private PlayerCollisionDetection playerCollisionDetection;
@@ -77,6 +88,8 @@ public class PlayerMovement : MonoBehaviour
         Jump();
         
         ApplyGravity();
+        
+        Rotate();
     }
 
     private void FixedUpdate()
@@ -94,6 +107,9 @@ public class PlayerMovement : MonoBehaviour
 
         isWalking = Input.GetKey(KeyCode.LeftShift);
         jumpData.jump = Input.GetKeyDown(KeyCode.Space);
+        
+        mouseMoveX = Input.GetAxis("Mouse X");
+        mouseMoveX *= rotationData.rotationXSensitivity;
     }
 
     #endregion
@@ -194,6 +210,21 @@ public class PlayerMovement : MonoBehaviour
                 jumpData.isJumping = false;
             }
         }
+    }
+    
+    #endregion
+    
+    #region Rotation
+    
+    private void Rotate()
+    {
+        rotationData.finalRotationAngle = transform.rotation.eulerAngles;
+        rotationData.finalRotationAngle.y += mouseMoveX;
+
+        rotationData.finalRotationAngle.y = Mathf.Repeat(rotationData.finalRotationAngle.y, 360);
+
+        transform.rotation = Quaternion.Lerp(transform.rotation, Quaternion.Euler(rotationData.finalRotationAngle), 
+                                             Time.deltaTime * rotationData.rotationSpeed);
     }
     
     #endregion
