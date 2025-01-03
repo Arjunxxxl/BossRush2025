@@ -17,6 +17,7 @@ public class PlayerMovement : MonoBehaviour
     [System.Serializable]
     private class JumpData
     {
+        public bool jumpTriggered;
         public bool jump;
         public bool jumpActive;
         public bool isJumping;
@@ -28,6 +29,7 @@ public class PlayerMovement : MonoBehaviour
         
         [Space]
         
+        public float jumpBufferTimeElapsed;
         public float jumpActiveTimeElapsed;
         public float minJumpActiveDuration;
         
@@ -83,6 +85,8 @@ public class PlayerMovement : MonoBehaviour
     {
         GetInput();
 
+        CheckForJumpTrigger();
+        KeepJumpInCache();
         SetJumpActive();
         UpdateJumpActiveTime();
         Jump();
@@ -106,7 +110,7 @@ public class PlayerMovement : MonoBehaviour
         inputDir.Normalize();
 
         isWalking = Input.GetKey(KeyCode.LeftShift);
-        jumpData.jump = Input.GetKeyDown(KeyCode.Space);
+        jumpData.jumpTriggered = Input.GetKeyDown(KeyCode.Space);
         
         mouseMoveX = Input.GetAxis("Mouse X");
         mouseMoveX *= rotationData.rotationXSensitivity;
@@ -135,6 +139,28 @@ public class PlayerMovement : MonoBehaviour
     
     #region Jump
     
+    private void CheckForJumpTrigger()
+    {
+        if (jumpData.jumpTriggered)
+        {
+            jumpData.jump = true;
+            jumpData.jumpBufferTimeElapsed = Constants.Player.PlayerJumpBufferTime;
+        }
+    }
+    
+    private void KeepJumpInCache()
+    {
+        if (jumpData.jump)
+        {
+            jumpData.jumpBufferTimeElapsed -= Time.deltaTime;
+
+            if (jumpData.jumpBufferTimeElapsed <= 0)
+            {
+                jumpData.jump = false;
+            }
+        }
+    }
+    
     private void SetJumpActive()
     {
         if (jumpData.jump && !jumpData.isJumping)
@@ -160,6 +186,7 @@ public class PlayerMovement : MonoBehaviour
                 jumpData.isBackwardJump = false;
             }
 
+            jumpData.jump = false;
             jumpData.jumpActive = true;
             jumpData.isJumping = true;
         }
