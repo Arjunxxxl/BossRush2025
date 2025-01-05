@@ -1,5 +1,4 @@
 using UnityEngine;
-using UnityEngine.Serialization;
 
 public class PlayerMovement : MonoBehaviour
 {
@@ -8,10 +7,24 @@ public class PlayerMovement : MonoBehaviour
     {
         public float moveSpeed;
         public float moveSpeedLerpFac;
+        public float moveSpeedTarget;
         public float moveSpeedWalk;
         public float moveSpeedRun;
+        public float moveSpeedDash;
         public Vector3 moveDir;
         public float ySpeed;
+    }
+    
+    [System.Serializable]
+    private class DashData
+    {
+        public bool dashTriggered;
+        public bool dashActive;
+        public bool dashOnCooldown;
+        public float dashDuration;
+        public float dashTimeElapsed;
+        public float dashCoolDownDuration;
+        public float dashCoolDownTimeElapsed;
     }
     
     [System.Serializable]
@@ -63,6 +76,9 @@ public class PlayerMovement : MonoBehaviour
     [Header("Movement Data")]
     [SerializeField] private MovementData movementData;
 
+    [Header("Dash Data")]
+    [SerializeField] private DashData dashData;
+    
     [Header("Jump Data")]
     [SerializeField] private JumpData jumpData;
 
@@ -74,30 +90,42 @@ public class PlayerMovement : MonoBehaviour
 
     private CharacterController characterController;
     private PlayerCollisionDetection playerCollisionDetection;
+    private PlayerEfxManager playerEfxManager;
 
     private void Start()
     {
         characterController = GetComponent<CharacterController>();
         playerCollisionDetection = GetComponent<PlayerCollisionDetection>();
+        playerEfxManager = GetComponent<PlayerEfxManager>();
     }
 
     private void Update()
     {
+        //Input
         GetInput();
 
+        //Jump
         CheckForJumpTrigger();
         KeepJumpInCache();
         SetJumpActive();
         UpdateJumpActiveTime();
         Jump();
+
+        //Dash
+        CheckForDashTrigger();
+        Dash();
+        UpdateDashCooldown();
         
+        //Gravity
         ApplyGravity();
         
+        //Rotation
         Rotate();
     }
 
     private void FixedUpdate()
     {
+        //Movement
         Move();
     }
 
@@ -110,6 +138,7 @@ public class PlayerMovement : MonoBehaviour
         inputDir.Normalize();
 
         isWalking = Input.GetKey(KeyCode.LeftShift);
+        dashData.dashTriggered = Input.GetKeyDown(KeyCode.Q);
         jumpData.jumpTriggered = Input.GetKeyDown(KeyCode.Space);
         
         mouseMoveX = Input.GetAxis("Mouse X");
@@ -125,14 +154,78 @@ public class PlayerMovement : MonoBehaviour
         movementData.moveDir = inputDir.x * transform.right +
                                inputDir.y * transform.forward;
 
-        movementData.moveSpeed = Mathf.Lerp(movementData.moveSpeed,
-                                            isWalking ? movementData.moveSpeedWalk : movementData.moveSpeedRun,
+        if (dashData.dashActive)
+        {
+            movementData.moveSpeedTarget = movementData.moveSpeedDash;
+            movementData.moveSpeed = movementData.moveSpeedTarget;
+        }
+        else
+        {
+            movementData.moveSpeedTarget = isWalking ? movementData.moveSpeedWalk : movementData.moveSpeedRun;
+        }
+        
+        movementData.moveSpeed = Mathf.Lerp(movementData.moveSpeed, movementData.moveSpeedTarget,
                                             Time.deltaTime * movementData.moveSpeedLerpFac);
 
         movementData.moveDir *= movementData.moveSpeed;
         movementData.moveDir.y = movementData.ySpeed;
         
         characterController.Move(movementData.moveDir * Time.deltaTime);
+    }
+
+    #endregion
+
+    #region Dash
+
+    private void CheckForDashTrigger()
+    {
+        if (dashData.dashTriggered && !dashData.dashActive && !dashData.dashOnCooldown)
+        {
+            dashData.dashActive = true;
+            dashData.dashOnCooldown = false;
+            
+            dashData.dashTimeElapsed = 0;
+            dashData.dashCoolDownTimeElapsed = 0;
+            
+            playerEfxManager.PlayDashEfx();
+            
+            PostProcessingManager.Instance.SetLensDistortionToDashDistortion();
+        }
+    }
+
+    private void Dash()
+    {
+        if (!dashData.dashActive)
+        {
+            return;
+        }
+
+        dashData.dashTimeElapsed += Time.deltaTime;
+
+        if (dashData.dashTimeElapsed >= dashData.dashDuration)
+        {
+            dashData.dashActive = false;
+            dashData.dashOnCooldown = true;
+            
+            playerEfxManager.StopDashEfx();
+            
+            PostProcessingManager.Instance.SetLensDistortionToIdleDistortion();
+        }
+    }
+    
+    private void UpdateDashCooldown()
+    {
+        if (!dashData.dashOnCooldown)
+        {
+            return;
+        }
+
+        dashData.dashCoolDownTimeElapsed += Time.deltaTime;
+
+        if (dashData.dashCoolDownTimeElapsed >= dashData.dashCoolDownDuration)
+        {
+            dashData.dashOnCooldown = false;
+        }
     }
 
     #endregion
