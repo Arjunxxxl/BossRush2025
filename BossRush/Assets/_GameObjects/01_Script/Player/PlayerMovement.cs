@@ -285,6 +285,11 @@ public class PlayerMovement : MonoBehaviour
             jumpData.jump = false;
             jumpData.jumpActive = true;
             jumpData.isJumping = true;
+
+            if (!playerCollisionDetection.IsGrounded)
+            {
+                jumpData.jumpCt = Constants.Player.PlayerMaxJumpCt;
+            }
         }
     }
 
