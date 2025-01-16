@@ -6,5 +6,6 @@ public static class Constants
     {
         //Jump
         public static readonly float PlayerJumpBufferTime = 0.15f;
+        public static readonly int PlayerMaxJumpCt = 2;
     }
 }

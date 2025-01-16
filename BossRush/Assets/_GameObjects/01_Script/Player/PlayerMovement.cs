@@ -34,6 +34,7 @@ public class PlayerMovement : MonoBehaviour
         public bool jump;
         public bool jumpActive;
         public bool isJumping;
+        public int jumpCt;
         
         [Space]
         
@@ -97,6 +98,8 @@ public class PlayerMovement : MonoBehaviour
         characterController = GetComponent<CharacterController>();
         playerCollisionDetection = GetComponent<PlayerCollisionDetection>();
         playerEfxManager = GetComponent<PlayerEfxManager>();
+
+        jumpData.jumpCt = 0;
     }
 
     private void Update()
@@ -258,12 +261,9 @@ public class PlayerMovement : MonoBehaviour
     
     private void SetJumpActive()
     {
-        if (jumpData.jump && !jumpData.isJumping)
+        if (jumpData.jump && jumpData.jumpCt < Constants.Player.PlayerMaxJumpCt)
         {
-            if (!jumpData.jumpActive)
-            {
-                jumpData.jumpActiveTimeElapsed = 0;
-            }
+            jumpData.jumpActiveTimeElapsed = 0;
 
             if(Vector3.Dot(movementData.moveDir, transform.forward) > 0)
             {
@@ -281,6 +281,7 @@ public class PlayerMovement : MonoBehaviour
                 jumpData.isBackwardJump = false;
             }
 
+            jumpData.jumpCt++;
             jumpData.jump = false;
             jumpData.jumpActive = true;
             jumpData.isJumping = true;
@@ -303,9 +304,8 @@ public class PlayerMovement : MonoBehaviour
 
     private void Jump()
     {
-        if(jumpData.jumpActive && playerCollisionDetection.IsGrounded)
+        if(jumpData.jumpActive)
         {
-            
             jumpData.jumpForceApplied = jumpData.jumpForce;
             movementData.ySpeed = jumpData.jumpForceApplied;
         }
@@ -329,6 +329,7 @@ public class PlayerMovement : MonoBehaviour
                 gravityData.gravity = gravityData.minGravity;
                 movementData.ySpeed = 0;
                 
+                jumpData.jumpCt = 0;
                 jumpData.isJumping = false;
             }
         }
