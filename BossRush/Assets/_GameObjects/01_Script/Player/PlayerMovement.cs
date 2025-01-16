@@ -190,6 +190,7 @@ public class PlayerMovement : MonoBehaviour
             playerEfxManager.PlayDashEfx();
             
             PostProcessingManager.Instance.SetLensDistortionToDashDistortion();
+            CameraMovement.OnPlayerDash?.Invoke(true);
         }
     }
 
@@ -210,6 +211,7 @@ public class PlayerMovement : MonoBehaviour
             playerEfxManager.StopDashEfx();
             
             PostProcessingManager.Instance.SetLensDistortionToIdleDistortion();
+            CameraMovement.OnPlayerDash?.Invoke(false);
         }
     }
     

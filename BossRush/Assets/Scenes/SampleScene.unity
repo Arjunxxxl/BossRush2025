@@ -282,6 +282,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7e41f8fcd3d7cbd4fabf3c7d15fb1c40, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  mainCam: {fileID: 330585545}
   playerT: {fileID: 498242714}
   rigData:
     cameraRigT: {fileID: 289999066}
@@ -299,6 +300,12 @@ MonoBehaviour:
     pivotRotationSensitivity: 4
     pivotRotation: {x: 0, y: 0, z: 0}
     pivotRotationRange: {x: -90, y: 80}
+  fovData:
+    fov: 0
+    fovTarget: 0
+    defaultFov: 60
+    dashFov: 90
+    fovChangeSpeed: 2.5
 --- !u!1 &298505815
 GameObject:
   m_ObjectHideFlags: 0

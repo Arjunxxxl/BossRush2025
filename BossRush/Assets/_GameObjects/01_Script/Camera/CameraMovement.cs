@@ -1,5 +1,4 @@
 using System;
-using Unity.Mathematics;
 using UnityEngine;
 
 public class CameraMovement : MonoBehaviour
@@ -27,7 +26,20 @@ public class CameraMovement : MonoBehaviour
         public Vector3 pivotRotation;
         public Vector2 pivotRotationRange;
     }
+    
+    [System.Serializable]
+    private class FOVData
+    {
+        public float fov;
+        public float fovTarget;
+        public float defaultFov;
+        public float dashFov;
+        public float fovChangeSpeed;
+    }
 
+    [Header("Ref")]
+    [SerializeField] private Camera mainCam;
+    
     [Header("Input")]
     private float mouseMoveY;
     
@@ -40,10 +52,26 @@ public class CameraMovement : MonoBehaviour
     [Header("Pivot Data")]
     [SerializeField] private PivotData pivotData;
 
+    [Header("Fov Data")]
+    [SerializeField] private FOVData fovData;
+
+    public static Action<bool> OnPlayerDash;
+
+    private void OnEnable()
+    {
+        OnPlayerDash += SetDashFOV;
+    }
+
+    private void OnDisable()
+    {
+        OnPlayerDash -= SetDashFOV;
+    }
+
     private void Start()
     {
         SetUpRig();
         SetUpPivot();
+        SetUpFOV();
     }
 
     // Update is called once per frame
@@ -56,6 +84,8 @@ public class CameraMovement : MonoBehaviour
         
         UpdatePivotPos();
         RotatePivot();
+
+        UpdateFOV();
     }
 
     #region Input
@@ -154,5 +184,28 @@ public class CameraMovement : MonoBehaviour
                                                                                   pivotData.pivotRotationSpeed));
     }
     
+    #endregion
+
+    #region FOV
+
+    private void SetUpFOV()
+    {
+        fovData.fovTarget = fovData.defaultFov;
+        fovData.fov = fovData.fovTarget;
+        mainCam.fieldOfView = fovData.fov;
+    }
+
+    private void SetDashFOV(bool isDashing)
+    {
+        fovData.fovTarget = isDashing ? fovData.dashFov : fovData.defaultFov;
+    }
+
+    private void UpdateFOV()
+    {
+        fovData.fov = Mathf.Lerp(fovData.fov, fovData.fovTarget,
+                                 1 - Mathf.Pow(0.5f, Time.deltaTime * fovData.fovChangeSpeed));
+        mainCam.fieldOfView = fovData.fov;
+    }
+
     #endregion
 }
