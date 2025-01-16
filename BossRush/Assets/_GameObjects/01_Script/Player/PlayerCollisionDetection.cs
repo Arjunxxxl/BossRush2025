@@ -52,6 +52,18 @@ public class PlayerCollisionDetection : MonoBehaviour
             
             groundDetectionData.groundedPhantomTimeELapsed = 0;
             groundDetectionData.wasGrounded = groundDetectionData.isGrounded;
+
+            if (transform.parent != colliders[0].transform.parent)
+            {
+                transform.SetParent(colliders[0].transform.parent);
+            }
+        }
+        else
+        {
+            if (transform.parent != null)
+            {
+                transform.SetParent(null);
+            }
         }
     }
 
