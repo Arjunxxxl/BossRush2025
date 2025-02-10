@@ -95,6 +95,9 @@ public class PlayerMovement : MonoBehaviour
 
     private void Start()
     {
+        Cursor.visible = false;
+        Cursor.lockState = CursorLockMode.Locked;
+        
         characterController = GetComponent<CharacterController>();
         playerCollisionDetection = GetComponent<PlayerCollisionDetection>();
         playerEfxManager = GetComponent<PlayerEfxManager>();
@@ -192,7 +195,7 @@ public class PlayerMovement : MonoBehaviour
             
             playerEfxManager.PlayDashEfx();
             
-            PostProcessingManager.Instance.SetLensDistortionToDashDistortion();
+            PostProcessingManager.Instance.SetPostProcessingDashVisuals();
             CameraMovement.OnPlayerDash?.Invoke(true);
         }
     }
@@ -213,7 +216,7 @@ public class PlayerMovement : MonoBehaviour
             
             playerEfxManager.StopDashEfx();
             
-            PostProcessingManager.Instance.SetLensDistortionToIdleDistortion();
+            PostProcessingManager.Instance.SetPostProcessingIdleVisuals();
             CameraMovement.OnPlayerDash?.Invoke(false);
         }
     }

@@ -1,7 +1,6 @@
 using UnityEngine;
 using UnityEngine.Rendering;
 using UnityEngine.Rendering.Universal;
-using UnityEngine.Serialization;
 
 public class PostProcessingManager : MonoBehaviour
 {
@@ -14,6 +13,14 @@ public class PostProcessingManager : MonoBehaviour
     [SerializeField] private float dashIdleDistortion;
     private float lensCurDistortion;
     [SerializeField] private float lensDistortionChangeSpeed;
+
+    [Header("Chromatic Abb")]
+    [SerializeField] private ChromaticAbbAnimStates chromaticAbbAnimStates = ChromaticAbbAnimStates.Unknown;
+    private ChromaticAberration chromaticAberration;
+    [SerializeField] private float dashChromaticAbb;
+    [SerializeField] private float dashIdleChromaticAbb;
+    private float curChromaticAbb;
+    [SerializeField] private float chromaticAbbChangeSpeed;
 
     #region SingleTon
 
@@ -43,6 +50,7 @@ public class PostProcessingManager : MonoBehaviour
     void Update()
     {
         UpdateLensDistortion();
+        UpdateChromaticAberration();
     }
 
     #region SetUp
@@ -52,10 +60,27 @@ public class PostProcessingManager : MonoBehaviour
         volume = GetComponent<Volume>();
 
         SetUpLensDistortion();
+        SetUpChromaticAberration();
     }
 
     #endregion
 
+    #region Dash
+
+    internal void SetPostProcessingDashVisuals()
+    {
+        SetLensDistortionToDashDistortion();
+        SetChromaticAberrationToDashDistortion();
+    }
+    
+    internal void SetPostProcessingIdleVisuals()
+    {
+        SetLensDistortionToIdleDistortion();
+        SetChromaticAberrationToIdleDistortion();
+    }
+
+    #endregion
+    
     #region Lens Distortion
 
     private void SetUpLensDistortion()
@@ -68,12 +93,12 @@ public class PostProcessingManager : MonoBehaviour
         lensDistortionAnimStates = LensDistortionAnimStates.Idle;
     }
 
-    internal void SetLensDistortionToDashDistortion()
+    private void SetLensDistortionToDashDistortion()
     {
         lensDistortionAnimStates = LensDistortionAnimStates.Dash;
     }
 
-    internal void SetLensDistortionToIdleDistortion()
+    private void SetLensDistortionToIdleDistortion()
     {
         lensDistortionAnimStates = LensDistortionAnimStates.Idle;
     }
@@ -103,6 +128,58 @@ public class PostProcessingManager : MonoBehaviour
             }
             
             lensDistortion.intensity.value = lensCurDistortion;
+        }
+    }
+
+    #endregion
+    
+    #region Chromatic Aberration
+
+    private void SetUpChromaticAberration()
+    {
+        volume.profile.TryGet<ChromaticAberration>(out chromaticAberration);
+        curChromaticAbb = dashIdleChromaticAbb;
+
+        chromaticAberration.intensity.value = curChromaticAbb;
+
+        chromaticAbbAnimStates = ChromaticAbbAnimStates.Idle;
+    }
+
+    private void SetChromaticAberrationToDashDistortion()
+    {
+        chromaticAbbAnimStates = ChromaticAbbAnimStates.Dash;
+    }
+
+    private void SetChromaticAberrationToIdleDistortion()
+    {
+        chromaticAbbAnimStates = ChromaticAbbAnimStates.Idle;
+    }
+
+    private void UpdateChromaticAberration()
+    {
+        if (chromaticAbbAnimStates == ChromaticAbbAnimStates.Dash)
+        {
+            curChromaticAbb = Mathf.Lerp(curChromaticAbb, dashChromaticAbb,
+                                         1 - Mathf.Pow(0.5f, Time.deltaTime * chromaticAbbChangeSpeed));
+            
+            if (Mathf.Abs(curChromaticAbb - dashChromaticAbb) <= 0.01f)
+            {
+                curChromaticAbb = dashChromaticAbb;
+            }
+            
+            chromaticAberration.intensity.value = curChromaticAbb;
+        }
+        else if (chromaticAbbAnimStates == ChromaticAbbAnimStates.Idle)
+        {
+            curChromaticAbb = Mathf.Lerp(curChromaticAbb, dashIdleChromaticAbb,
+                                         1 - Mathf.Pow(0.5f, Time.deltaTime * chromaticAbbChangeSpeed));
+            
+            if (Mathf.Abs(curChromaticAbb - dashIdleChromaticAbb) <= 0.01f)
+            {
+                curChromaticAbb = dashIdleChromaticAbb;
+            }
+            
+            chromaticAberration.intensity.value = curChromaticAbb;
         }
     }
 

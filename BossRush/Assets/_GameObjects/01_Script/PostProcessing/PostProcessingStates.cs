@@ -9,3 +9,10 @@ public enum LensDistortionAnimStates
     Idle,
     Dash
 }
+
+public enum ChromaticAbbAnimStates
+{
+    Unknown,
+    Idle,
+    Dash
+}

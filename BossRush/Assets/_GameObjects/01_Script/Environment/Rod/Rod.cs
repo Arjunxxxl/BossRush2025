@@ -18,7 +18,8 @@ public class Rod : MonoBehaviour
     private float oscilationSpeed;
     private float osiclationFac;
 
-    private BoxCollider rodBoxCollider;
+    [Header("Collider")]
+    [SerializeField] private BoxCollider rodBoxCollider;
     
     // Update is called once per frame
     void Update()
@@ -52,6 +53,10 @@ public class Rod : MonoBehaviour
         rodMidObj.transform.localScale = roadMidScale;
         rodTopObj.transform.localScale = rodTopScale;
         rodBotObj.transform.localScale = rodBotScale;
+
+        rodBoxCollider.size = new Vector3(roadMidScale.x,
+                                          roadMidScale.y + + rodTopScale.y + rodBotScale.y,
+                                          roadMidScale.z);
     }
 
     private void SetRodObjsPos()

@@ -249,6 +249,7 @@ MonoBehaviour:
   minPos: {x: 0, y: -5, z: 0}
   maxPos: {x: 0, y: 5, z: 0}
   oscilationSpeedRange: {x: 0.1, y: 0.75}
+  rodBoxCollider: {fileID: 4886884968593750636}
 --- !u!1 &8542762706533594249
 GameObject:
   m_ObjectHideFlags: 0
