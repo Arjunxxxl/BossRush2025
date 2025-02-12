@@ -11,10 +11,9 @@ public class Weapon : MonoBehaviour
     private float stateDuration;
 
     [Header("Shooting Data")]
-    private bool isShooting;
-    private float timeSinceLastBullet;
-    private float gapBtwBullets;
     private int ammoLeftInClip;
+    private float gapBtwBullets;
+    private float timeElapsedSinceLastBullet;
 
     [Header("Transforms")]
     [SerializeField] private Transform bulletSpawnT;
@@ -24,13 +23,15 @@ public class Weapon : MonoBehaviour
 
     [Header("Weapon Manager")]
     private WeaponManager weaponManager;
+
+    [Header("Animator")]
+    private WeaponAnimator weaponAnimator;
     
     internal void Update()
     {
         GetInput();
         CheckForReload();
         
-        UpdateShootingTimer();
         UpdateStateTimer();
     }
 
@@ -38,12 +39,13 @@ public class Weapon : MonoBehaviour
 
     internal void Init(WeaponManager weaponManager)
     {
+        weaponAnimator = GetComponent<WeaponAnimator>();
+        
         this.weaponManager = weaponManager;
         
-        timeSinceLastBullet = 0;
-        gapBtwBullets = 1 / weaponData.bulletsPreSec;
-
         ammoLeftInClip = 0;
+        gapBtwBullets = 1.0f / weaponData.bulletPerSec;
+        timeElapsedSinceLastBullet = 0.0f;
         
         SetWeaponState(WeaponStates.Idle);
 
@@ -52,6 +54,21 @@ public class Weapon : MonoBehaviour
 
     #endregion
 
+    #region Input
+
+    private void GetInput()
+    {
+        if (Input.GetMouseButtonDown(0) || Input.GetMouseButton(0))
+        {
+            if (CanShootWeapon())
+            {
+                SetWeaponState(WeaponStates.Shoot);
+            }
+        }
+    }
+
+    #endregion
+    
     #region States
 
     internal WeaponStates GetWeaponState()
@@ -69,14 +86,23 @@ public class Weapon : MonoBehaviour
         this.weaponState = weaponState;
 
         SetStateData();
-        
         stateTimeElapsed = 0.0f;
+
+        weaponAnimator.PlayWeaponAnimation(this.weaponState);
     }
 
     private void SetStateData()
     {
         switch (weaponState)
         {
+            case WeaponStates.Idle:
+                break;
+            
+            case WeaponStates.Shoot:
+                Shoot();
+                stateDuration = gapBtwBullets;
+                break;
+            
             case WeaponStates.Reloading:
                 stateDuration = weaponData.reloadDuration;
                 break;
@@ -94,7 +120,16 @@ public class Weapon : MonoBehaviour
             SetWeaponState(WeaponStates.Idle);
         }
         
-        if (weaponState == WeaponStates.Reloading)
+        if (weaponState == WeaponStates.Shoot)
+        {
+            stateTimeElapsed += Time.deltaTime;
+
+            if (stateTimeElapsed >= stateDuration)
+            {
+                SetWeaponState(WeaponStates.Idle);
+            }
+        }
+        else if (weaponState == WeaponStates.Reloading)
         {
             stateTimeElapsed += Time.deltaTime;
 
@@ -106,58 +141,20 @@ public class Weapon : MonoBehaviour
     }
 
     #endregion
-
-    #region Input
-
-    private void GetInput()
-    {
-        if (Input.GetMouseButtonDown(0) || Input.GetMouseButton(0))
-        {
-            if (!IsWeaponReloading())
-            {
-                isShooting = true;
-                SetWeaponState(WeaponStates.Shooting);
-            }
-        }
-        else
-        {
-            isShooting = false;
-            ResetShootingTimer();
-
-            if (!IsWeaponReloading())
-            {
-                SetWeaponState(WeaponStates.Idle);
-            }
-        }
-    }
-
-    #endregion
     
     #region Shooting
 
-    private void ResetShootingTimer()
+    private bool CanShootWeapon()
     {
-        timeSinceLastBullet = 0;
+        bool isReloading = IsWeaponReloading();
+        bool isShooting = weaponState == WeaponStates.Shoot;
+        bool haveAmmo = ammoLeftInClip > 0;
+        
+        bool canShoot = !isReloading && !isShooting && haveAmmo;
+
+        return canShoot;
     }
     
-    private void UpdateShootingTimer()
-    {
-        if (isShooting && ammoLeftInClip > 0 && !IsWeaponReloading())
-        {
-            if (timeSinceLastBullet == 0)
-            {
-                Shoot();
-            }
-            
-            timeSinceLastBullet += Time.deltaTime;
-
-            if (timeSinceLastBullet >= gapBtwBullets)
-            {
-                timeSinceLastBullet = 0;
-            }
-        }
-    }
-
     private void Shoot()
     {
         ammoLeftInClip--;

@@ -1,10 +1,8 @@
-using UnityEngine;
-
 public enum WeaponStates
 {
     Unknown,
     Idle,
-    Shooting,
+    Shoot,
     Reloading,
     Reloaded
 }

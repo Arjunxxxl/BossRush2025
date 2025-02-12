@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.Serialization;
 
 [System.Serializable]
 public class WeaponData
@@ -9,7 +10,7 @@ public class WeaponData
     public string bulletPrefabTag;
 
     [Header("Shooting Data")]
-    public float bulletsPreSec;
+    public float bulletPerSec;
 
     [Header("Ammo Data")]
     public int clipSize;
