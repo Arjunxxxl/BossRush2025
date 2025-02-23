@@ -117,7 +117,7 @@ public class CameraMovement : MonoBehaviour
         rigData.cameraRigT.position = Vector3.SmoothDamp(rigData.cameraRigT.position,
                                                                     destination, ref rigData.refVel,
                                                                     1 - Mathf.Pow(0.5f,
-                                                                        Time.deltaTime * rigData.rigFollowSpeed));
+                                                                        Time.unscaledDeltaTime * rigData.rigFollowSpeed));
     }
 
     private void RotateRig()
@@ -129,7 +129,7 @@ public class CameraMovement : MonoBehaviour
         rigData.cameraRigT.rotation = Quaternion.Lerp(rigData.cameraRigT.rotation,
                                                                 Quaternion.Euler(targetRotation), 
                                                                 1 - Mathf.Pow(0.5f, 
-                                                                              Time.deltaTime * rigData.rigRotationSpeed));
+                                                                              Time.unscaledDeltaTime * rigData.rigRotationSpeed));
     }
 
     #endregion
@@ -160,7 +160,7 @@ public class CameraMovement : MonoBehaviour
         pivotData.cameraPivotT.localPosition = Vector3.Lerp(pivotData.cameraPivotT.localPosition,
                                                                       pivotData.pivotOffset,
                                                                       1 - Mathf.Pow(0.5f,
-                                                                          Time.deltaTime *
+                                                                          Time.unscaledDeltaTime *
                                                                           pivotData.pivotOffsetChangeSpeed));
     }
 
@@ -180,7 +180,7 @@ public class CameraMovement : MonoBehaviour
         
         pivotData.cameraPivotT.localRotation = Quaternion.Lerp(pivotData.cameraPivotT.localRotation,
                                                                          Quaternion.Euler(pivotData.pivotRotation), 
-                                                                         1 - Mathf.Pow(0.5f, Time.deltaTime * 
+                                                                         1 - Mathf.Pow(0.5f, Time.unscaledDeltaTime * 
                                                                                   pivotData.pivotRotationSpeed));
     }
     
@@ -203,7 +203,7 @@ public class CameraMovement : MonoBehaviour
     private void UpdateFOV()
     {
         fovData.fov = Mathf.Lerp(fovData.fov, fovData.fovTarget,
-                                 1 - Mathf.Pow(0.5f, Time.deltaTime * fovData.fovChangeSpeed));
+                                 1 - Mathf.Pow(0.5f, Time.unscaledDeltaTime * fovData.fovChangeSpeed));
         mainCam.fieldOfView = fovData.fov;
     }
 

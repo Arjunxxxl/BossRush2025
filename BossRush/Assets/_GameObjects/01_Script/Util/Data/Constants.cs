@@ -13,5 +13,14 @@ public static class Constants
     {
         // Reload
         public static readonly bool CanAutoReload = true;
+        
+        //Bullet
+        public static readonly bool UseTargetedBullets = false;
+    }
+
+    public static class TimeScale
+    {
+        public static readonly float DefaultTimeScale = 1.0f;
+        public static readonly float DefaultFixedDeltaTime = 0.02f;
     }
 }

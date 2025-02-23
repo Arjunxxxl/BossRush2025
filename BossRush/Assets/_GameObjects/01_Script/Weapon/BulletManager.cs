@@ -21,10 +21,11 @@ public class BulletManager : MonoBehaviour
 
     #endregion
 
-    internal void SpawnBullet(string bulletTag, Vector3 spawnPos, Quaternion spawnRot, Vector3 moveDir)
+    internal void SpawnBullet(string bulletTag, Vector3 spawnPos, Quaternion spawnRot, 
+                                Vector3 moveDir, bool isTargetedBullet, Vector3 targetPt)
     {
         GameObject bulletGo = ObjectPooler.Instance.SpawnFormPool(bulletTag, spawnPos, spawnRot);
         Bullet bullet = bulletGo.GetComponent<Bullet>();
-        bullet.SetUp(moveDir);
+        bullet.SetUp(moveDir, isTargetedBullet, targetPt);
     }
 }

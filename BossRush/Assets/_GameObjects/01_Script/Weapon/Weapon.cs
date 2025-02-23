@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 
 public class Weapon : MonoBehaviour
@@ -13,7 +14,12 @@ public class Weapon : MonoBehaviour
     [Header("Shooting Data")]
     private int ammoLeftInClip;
     private float gapBtwBullets;
-    private float timeElapsedSinceLastBullet;
+
+    [Header("Shooting Ray Cast")]
+    [SerializeField] private Transform rayStartT;
+    [SerializeField] private Vector3 rayStartOffset;
+    [SerializeField] private LayerMask rayInteractingLayer;
+    private float rayDist = 1000f;
 
     [Header("Transforms")]
     [SerializeField] private Transform bulletSpawnT;
@@ -45,7 +51,6 @@ public class Weapon : MonoBehaviour
         
         ammoLeftInClip = 0;
         gapBtwBullets = 1.0f / weaponData.bulletPerSec;
-        timeElapsedSinceLastBullet = 0.0f;
         
         SetWeaponState(WeaponStates.Idle);
 
@@ -122,7 +127,7 @@ public class Weapon : MonoBehaviour
         
         if (weaponState == WeaponStates.Shoot)
         {
-            stateTimeElapsed += Time.deltaTime;
+            stateTimeElapsed += Time.unscaledDeltaTime;
 
             if (stateTimeElapsed >= stateDuration)
             {
@@ -131,7 +136,7 @@ public class Weapon : MonoBehaviour
         }
         else if (weaponState == WeaponStates.Reloading)
         {
-            stateTimeElapsed += Time.deltaTime;
+            stateTimeElapsed += Time.unscaledDeltaTime;
 
             if (stateTimeElapsed >= stateDuration)
             {
@@ -158,17 +163,35 @@ public class Weapon : MonoBehaviour
     private void Shoot()
     {
         ammoLeftInClip--;
+
+        var shootingRayHit = GetShootingRayHit();
+        bool isRayHitSomething = shootingRayHit.Item1 && Constants.Weapon.UseTargetedBullets;
+        Vector3 rayHitPt = shootingRayHit.Item2;
         
         BulletManager.Instance.SpawnBullet(weaponData.bulletPrefabTag,
                                            bulletSpawnT.transform.position,
                                            Quaternion.identity,
-                                           transform.forward);
+                                           transform.forward,
+                                           isRayHitSomething,
+                                           rayHitPt);
         
         muzzleFlash.Play();
 
         UpdateClipAmmoUi();
     }
 
+    private (bool, Vector3) GetShootingRayHit()
+    {
+        Physics.Raycast(rayStartT.position + rayStartOffset, rayStartT.forward, out RaycastHit hit, rayDist, rayInteractingLayer);
+
+        if (hit.collider != null)
+        {
+            return (true, hit.point);
+        }
+        
+        return (false, Vector3.zero);
+    }
+    
     #endregion
 
     #region Reload
@@ -236,6 +259,16 @@ public class Weapon : MonoBehaviour
     internal WeaponData GetWeaponData()
     {
         return weaponData;
+    }
+
+    #endregion
+
+    #region Gizmos
+
+    private void OnDrawGizmos()
+    {
+        Gizmos.color = Color.green;
+        Gizmos.DrawLine(rayStartT.position + rayStartOffset, rayStartT.forward * rayDist);
     }
 
     #endregion

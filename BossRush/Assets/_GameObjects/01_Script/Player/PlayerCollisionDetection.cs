@@ -18,6 +18,8 @@ public class PlayerCollisionDetection : MonoBehaviour
     [Header("Ground Detection")]
     [SerializeField] private GroundDetectionData groundDetectionData;
 
+    private Player player;
+    
     #region Properties
 
     internal bool IsGrounded => groundDetectionData.isGrounded;
@@ -30,6 +32,15 @@ public class PlayerCollisionDetection : MonoBehaviour
         CheckGrounded();
         GroundPhantomTime();
     }
+    
+    #region SetUp
+
+    internal void SetUp(Player player)
+    {
+        this.player = player;
+    }
+
+    #endregion
     
     #region Grounded
 
@@ -78,7 +89,7 @@ public class PlayerCollisionDetection : MonoBehaviour
             }
             else
             {
-                groundDetectionData.groundedPhantomTimeELapsed += Time.deltaTime;
+                groundDetectionData.groundedPhantomTimeELapsed += Time.unscaledDeltaTime;
             }
         }
     }

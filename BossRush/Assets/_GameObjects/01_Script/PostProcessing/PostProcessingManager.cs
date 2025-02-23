@@ -1,26 +1,35 @@
 using UnityEngine;
 using UnityEngine.Rendering;
 using UnityEngine.Rendering.Universal;
+using UnityEngine.Serialization;
 
 public class PostProcessingManager : MonoBehaviour
 {
     private Volume volume;
 
     [Header("Lens Distortion")]
-    [SerializeField] private LensDistortionAnimStates lensDistortionAnimStates = LensDistortionAnimStates.Unknown;
+    [SerializeField] private PostProcessingStates lensDistortionAnimStates = PostProcessingStates.Unknown;
     private LensDistortion lensDistortion;
-    [SerializeField] private float dashDistortion;
-    [SerializeField] private float dashIdleDistortion;
+    [SerializeField] private float maxDistortion;
+    [SerializeField] private float idleDistortion;
     private float lensCurDistortion;
     [SerializeField] private float lensDistortionChangeSpeed;
 
     [Header("Chromatic Abb")]
-    [SerializeField] private ChromaticAbbAnimStates chromaticAbbAnimStates = ChromaticAbbAnimStates.Unknown;
+    [SerializeField] private PostProcessingStates chromaticAbbAnimStates = PostProcessingStates.Unknown;
     private ChromaticAberration chromaticAberration;
-    [SerializeField] private float dashChromaticAbb;
-    [SerializeField] private float dashIdleChromaticAbb;
+    [SerializeField] private float maxChromaticAbb;
+    [SerializeField] private float idleChromaticAbb;
     private float curChromaticAbb;
     [SerializeField] private float chromaticAbbChangeSpeed;
+
+    [Header("Vignette")]
+    [SerializeField] private PostProcessingStates vignetteAnimStates = PostProcessingStates.Unknown;
+    private Vignette vignette;
+    [SerializeField] private float maxVignette;
+    [SerializeField] private float idleVignette;
+    private float curVignette;
+    [SerializeField] private float vignetteChangeSpeed;
 
     #region SingleTon
 
@@ -51,6 +60,7 @@ public class PostProcessingManager : MonoBehaviour
     {
         UpdateLensDistortion();
         UpdateChromaticAberration();
+        UpdateVignette();
     }
 
     #region SetUp
@@ -61,6 +71,7 @@ public class PostProcessingManager : MonoBehaviour
 
         SetUpLensDistortion();
         SetUpChromaticAberration();
+        SetUpVignette();
     }
 
     #endregion
@@ -69,8 +80,8 @@ public class PostProcessingManager : MonoBehaviour
 
     internal void SetPostProcessingDashVisuals()
     {
-        SetLensDistortionToDashDistortion();
-        SetChromaticAberrationToDashDistortion();
+        SetLensDistortionToMaxDistortion();
+        SetChromaticAberrationToMaxDistortion();
     }
     
     internal void SetPostProcessingIdleVisuals()
@@ -80,51 +91,65 @@ public class PostProcessingManager : MonoBehaviour
     }
 
     #endregion
+
+    #region Ability
+
+    internal void SetPostProcessingTimeSlowValues()
+    {
+        SetVignetteToMaxDistortion();
+    }
+
+    internal void RemovePostProcessingTimeSlowValues()
+    {
+        SetVignetteToIdleDistortion();
+    }
+
+    #endregion
     
     #region Lens Distortion
 
     private void SetUpLensDistortion()
     {
         volume.profile.TryGet<LensDistortion>(out lensDistortion);
-        lensCurDistortion = dashIdleDistortion;
+        lensCurDistortion = idleDistortion;
 
         lensDistortion.intensity.value = lensCurDistortion;
 
-        lensDistortionAnimStates = LensDistortionAnimStates.Idle;
+        lensDistortionAnimStates = PostProcessingStates.Idle;
     }
 
-    private void SetLensDistortionToDashDistortion()
+    private void SetLensDistortionToMaxDistortion()
     {
-        lensDistortionAnimStates = LensDistortionAnimStates.Dash;
+        lensDistortionAnimStates = PostProcessingStates.Max;
     }
 
     private void SetLensDistortionToIdleDistortion()
     {
-        lensDistortionAnimStates = LensDistortionAnimStates.Idle;
+        lensDistortionAnimStates = PostProcessingStates.Idle;
     }
 
     private void UpdateLensDistortion()
     {
-        if (lensDistortionAnimStates == LensDistortionAnimStates.Dash)
+        if (lensDistortionAnimStates == PostProcessingStates.Max)
         {
-            lensCurDistortion = Mathf.Lerp(lensCurDistortion, dashDistortion,
-                                           1 - Mathf.Pow(0.5f, Time.deltaTime * lensDistortionChangeSpeed));
+            lensCurDistortion = Mathf.Lerp(lensCurDistortion, maxDistortion,
+                                           1 - Mathf.Pow(0.5f, Time.unscaledDeltaTime * lensDistortionChangeSpeed));
             
-            if (Mathf.Abs(lensCurDistortion - dashDistortion) <= 0.01f)
+            if (Mathf.Abs(lensCurDistortion - maxDistortion) <= 0.01f)
             {
-                lensCurDistortion = dashDistortion;
+                lensCurDistortion = maxDistortion;
             }
             
             lensDistortion.intensity.value = lensCurDistortion;
         }
-        else if (lensDistortionAnimStates == LensDistortionAnimStates.Idle)
+        else if (lensDistortionAnimStates == PostProcessingStates.Idle)
         {
-            lensCurDistortion = Mathf.Lerp(lensCurDistortion, dashIdleDistortion,
-                                           1 - Mathf.Pow(0.5f, Time.deltaTime * lensDistortionChangeSpeed));
+            lensCurDistortion = Mathf.Lerp(lensCurDistortion, idleDistortion,
+                                           1 - Mathf.Pow(0.5f, Time.unscaledDeltaTime * lensDistortionChangeSpeed));
             
-            if (Mathf.Abs(lensCurDistortion - dashIdleDistortion) <= 0.01f)
+            if (Mathf.Abs(lensCurDistortion - idleDistortion) <= 0.01f)
             {
-                lensCurDistortion = dashIdleDistortion;
+                lensCurDistortion = idleDistortion;
             }
             
             lensDistortion.intensity.value = lensCurDistortion;
@@ -138,48 +163,100 @@ public class PostProcessingManager : MonoBehaviour
     private void SetUpChromaticAberration()
     {
         volume.profile.TryGet<ChromaticAberration>(out chromaticAberration);
-        curChromaticAbb = dashIdleChromaticAbb;
+        curChromaticAbb = idleChromaticAbb;
 
         chromaticAberration.intensity.value = curChromaticAbb;
 
-        chromaticAbbAnimStates = ChromaticAbbAnimStates.Idle;
+        chromaticAbbAnimStates = PostProcessingStates.Idle;
     }
 
-    private void SetChromaticAberrationToDashDistortion()
+    private void SetChromaticAberrationToMaxDistortion()
     {
-        chromaticAbbAnimStates = ChromaticAbbAnimStates.Dash;
+        chromaticAbbAnimStates = PostProcessingStates.Max;
     }
 
     private void SetChromaticAberrationToIdleDistortion()
     {
-        chromaticAbbAnimStates = ChromaticAbbAnimStates.Idle;
+        chromaticAbbAnimStates = PostProcessingStates.Idle;
     }
 
     private void UpdateChromaticAberration()
     {
-        if (chromaticAbbAnimStates == ChromaticAbbAnimStates.Dash)
+        if (chromaticAbbAnimStates == PostProcessingStates.Max)
         {
-            curChromaticAbb = Mathf.Lerp(curChromaticAbb, dashChromaticAbb,
-                                         1 - Mathf.Pow(0.5f, Time.deltaTime * chromaticAbbChangeSpeed));
+            curChromaticAbb = Mathf.Lerp(curChromaticAbb, maxChromaticAbb,
+                                         1 - Mathf.Pow(0.5f, Time.unscaledDeltaTime * chromaticAbbChangeSpeed));
             
-            if (Mathf.Abs(curChromaticAbb - dashChromaticAbb) <= 0.01f)
+            if (Mathf.Abs(curChromaticAbb - maxChromaticAbb) <= 0.01f)
             {
-                curChromaticAbb = dashChromaticAbb;
+                curChromaticAbb = maxChromaticAbb;
             }
             
             chromaticAberration.intensity.value = curChromaticAbb;
         }
-        else if (chromaticAbbAnimStates == ChromaticAbbAnimStates.Idle)
+        else if (chromaticAbbAnimStates == PostProcessingStates.Idle)
         {
-            curChromaticAbb = Mathf.Lerp(curChromaticAbb, dashIdleChromaticAbb,
-                                         1 - Mathf.Pow(0.5f, Time.deltaTime * chromaticAbbChangeSpeed));
+            curChromaticAbb = Mathf.Lerp(curChromaticAbb, idleChromaticAbb,
+                                         1 - Mathf.Pow(0.5f, Time.unscaledDeltaTime * chromaticAbbChangeSpeed));
             
-            if (Mathf.Abs(curChromaticAbb - dashIdleChromaticAbb) <= 0.01f)
+            if (Mathf.Abs(curChromaticAbb - idleChromaticAbb) <= 0.01f)
             {
-                curChromaticAbb = dashIdleChromaticAbb;
+                curChromaticAbb = idleChromaticAbb;
             }
             
             chromaticAberration.intensity.value = curChromaticAbb;
+        }
+    }
+
+    #endregion
+    
+    #region Vignette
+
+    private void SetUpVignette()
+    {
+        volume.profile.TryGet<Vignette>(out vignette);
+        curVignette = idleVignette;
+
+        vignette.intensity.value = curVignette;
+
+        vignetteAnimStates = PostProcessingStates.Idle;
+    }
+
+    private void SetVignetteToMaxDistortion()
+    {
+        vignetteAnimStates = PostProcessingStates.Max;
+    }
+
+    private void SetVignetteToIdleDistortion()
+    {
+        vignetteAnimStates = PostProcessingStates.Idle;
+    }
+
+    private void UpdateVignette()
+    {
+        if (vignetteAnimStates == PostProcessingStates.Max)
+        {
+            curVignette = Mathf.Lerp(curVignette, maxVignette,
+                                     1 - Mathf.Pow(0.5f, Time.unscaledDeltaTime * vignetteChangeSpeed));
+            
+            if (Mathf.Abs(curVignette - maxVignette) <= 0.01f)
+            {
+                curVignette = maxVignette;
+            }
+            
+            vignette.intensity.value = curVignette;
+        }
+        else if (vignetteAnimStates == PostProcessingStates.Idle)
+        {
+            curVignette = Mathf.Lerp(curVignette, idleVignette,
+                                     1 - Mathf.Pow(0.5f, Time.unscaledDeltaTime * vignetteChangeSpeed));
+            
+            if (Mathf.Abs(curVignette - idleVignette) <= 0.01f)
+            {
+                curVignette = idleVignette;
+            }
+            
+            vignette.intensity.value = curVignette;
         }
     }
 

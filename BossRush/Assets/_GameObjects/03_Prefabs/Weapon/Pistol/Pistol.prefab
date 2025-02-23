@@ -52,6 +52,11 @@ MonoBehaviour:
     bulletPerSec: 4
     clipSize: 25
     reloadDuration: 1.25
+  rayStartT: {fileID: 0}
+  rayStartOffset: {x: 0, y: 0, z: 0}
+  rayInteractingLayer:
+    serializedVersion: 2
+    m_Bits: 65
   bulletSpawnT: {fileID: 3068512273470366982}
   muzzleFlash: {fileID: 4514780748980186006}
 --- !u!114 &1469089708942839389
@@ -148,6 +153,10 @@ PrefabInstance:
       propertyPath: m_Controller
       value: 
       objectReference: {fileID: 9100000, guid: 9b843178fce7a894397db478604445c5, type: 2}
+    - target: {fileID: 2170005241240761127, guid: ba3ba2abdc8bf6944ac6a467cd236952, type: 3}
+      propertyPath: m_UpdateMode
+      value: 2
+      objectReference: {fileID: 0}
     - target: {fileID: 2560542594666507750, guid: ba3ba2abdc8bf6944ac6a467cd236952, type: 3}
       propertyPath: m_Layer
       value: 7
@@ -316,17 +325,33 @@ PrefabInstance:
       propertyPath: playOnAwake
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 198030064156889550, guid: 0b0d69410ca2f1045b821e4b992ce9a2, type: 3}
+      propertyPath: useUnscaledTime
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 198580660248066258, guid: 0b0d69410ca2f1045b821e4b992ce9a2, type: 3}
       propertyPath: playOnAwake
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 198580660248066258, guid: 0b0d69410ca2f1045b821e4b992ce9a2, type: 3}
+      propertyPath: useUnscaledTime
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 198676723234842744, guid: 0b0d69410ca2f1045b821e4b992ce9a2, type: 3}
       propertyPath: playOnAwake
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 198676723234842744, guid: 0b0d69410ca2f1045b821e4b992ce9a2, type: 3}
+      propertyPath: useUnscaledTime
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 198888573532979688, guid: 0b0d69410ca2f1045b821e4b992ce9a2, type: 3}
       propertyPath: playOnAwake
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 198888573532979688, guid: 0b0d69410ca2f1045b821e4b992ce9a2, type: 3}
+      propertyPath: useUnscaledTime
+      value: 1
       objectReference: {fileID: 0}
     m_RemovedComponents:
     - {fileID: -3841503736161596861, guid: 0b0d69410ca2f1045b821e4b992ce9a2, type: 3}

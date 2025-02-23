@@ -17,11 +17,18 @@ public class WeaponManager : MonoBehaviour
     [Header("Ammo Data")]
     [SerializeField] private List<AmmoData> allWeaponAmmoData;
 
-    private void Start()
+    private Player player;
+    
+    #region SetUp
+
+    internal void SetUp(Player player)
     {
+        this.player = player;
         SetUpEquippedWeapon();
     }
 
+    #endregion
+    
     #region Eqipped Weapon
 
     private void SetUpEquippedWeapon()

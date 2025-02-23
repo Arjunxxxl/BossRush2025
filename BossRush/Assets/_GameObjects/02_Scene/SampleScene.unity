@@ -166,7 +166,7 @@ GameObject:
   - component: {fileID: 88671866}
   - component: {fileID: 88671865}
   - component: {fileID: 88671864}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: Capsule
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -1339,11 +1339,12 @@ GameObject:
   - component: {fileID: 498242714}
   - component: {fileID: 498242713}
   - component: {fileID: 498242712}
+  - component: {fileID: 498242719}
   - component: {fileID: 498242716}
   - component: {fileID: 498242715}
   - component: {fileID: 498242717}
   - component: {fileID: 498242718}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: Player
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -1461,14 +1462,6 @@ MonoBehaviour:
     moveSpeedDash: 50
     moveDir: {x: 0, y: 0, z: 0}
     ySpeed: 0
-  dashData:
-    dashTriggered: 0
-    dashActive: 0
-    dashOnCooldown: 0
-    dashDuration: 0.25
-    dashTimeElapsed: 0
-    dashCoolDownDuration: 0.5
-    dashCoolDownTimeElapsed: 0
   jumpData:
     jumpTriggered: 0
     jump: 0
@@ -1521,6 +1514,18 @@ MonoBehaviour:
   allWeaponAmmoData:
   - weaponType: 1
     carryingAmmo: 200
+--- !u!114 &498242719
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 498242711}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 981063ce3cf216d4c9f1281741fe9cce, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &509701701
 GameObject:
   m_ObjectHideFlags: 0
@@ -1907,6 +1912,54 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 610997039}
   m_CullTransparentMesh: 1
+--- !u!1 &628172076
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 628172078}
+  - component: {fileID: 628172077}
+  m_Layer: 0
+  m_Name: AbilityManager
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &628172077
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 628172076}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 79672045136524a47a50a463811726ad, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  abilityPool: 010000000200000003000000
+  primaryAbility: 0
+  secondaryAbilityType: 0
+  abilityData: {fileID: 11400000, guid: 32b39c8e09ad9864288df1e923bd6375, type: 2}
+--- !u!4 &628172078
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 628172076}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &643800297
 GameObject:
   m_ObjectHideFlags: 0
@@ -1918,7 +1971,7 @@ GameObject:
   - component: {fileID: 643800298}
   - component: {fileID: 643800300}
   - component: {fileID: 643800299}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: DashEfx
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -7052,7 +7105,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 920424351}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: Model
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -7641,7 +7694,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1622929321}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: Efx
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -7816,7 +7869,7 @@ GameObject:
   - component: {fileID: 1680126568}
   - component: {fileID: 1680126567}
   - component: {fileID: 1680126566}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: Cube
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -8543,13 +8596,17 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   lensDistortionAnimStates: 0
-  dashDistortion: -0.5
-  dashIdleDistortion: 0
+  maxDistortion: -0.5
+  idleDistortion: 0
   lensDistortionChangeSpeed: 10
   chromaticAbbAnimStates: 0
-  dashChromaticAbb: 0.4
-  dashIdleChromaticAbb: 0
+  maxChromaticAbb: 0.4
+  idleChromaticAbb: 0
   chromaticAbbChangeSpeed: 10
+  vignetteAnimStates: 0
+  maxVignette: 0.3
+  idleVignette: 0.15
+  vignetteChangeSpeed: 10
 --- !u!1 &1943263771
 GameObject:
   m_ObjectHideFlags: 0
@@ -8775,7 +8832,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1971444666}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: Container
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -8957,6 +9014,38 @@ MonoBehaviour:
   spawnRadiusMin: 100
   spawnRadiusMax: 200
   spawnCenter: {x: 0, y: 0, z: 0}
+--- !u!1 &2018045388
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 2018045389}
+  m_Layer: 0
+  m_Name: AbilityAndPowerUps Items
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &2018045389
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2018045388}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children:
+  - {fileID: 2058967936}
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &2019453368
 GameObject:
   m_ObjectHideFlags: 0
@@ -9035,6 +9124,75 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2019453368}
   m_CullTransparentMesh: 1
+--- !u!1 &2058967935
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 2058967936}
+  - component: {fileID: 2058967937}
+  m_Layer: 0
+  m_Name: TimeScaleManager
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &2058967936
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2058967935}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 2018045389}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &2058967937
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2058967935}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 11675587dd7e67143909ce395810b13d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  timeScaleUpdateSpeed: 0.75
+  timeScaleUpdateCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 0
+      inSlope: 2
+      outSlope: 2
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    - serializedVersion: 3
+      time: 1
+      value: 1
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
 --- !u!1 &2090487251
 GameObject:
   m_ObjectHideFlags: 0
@@ -9152,6 +9310,10 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 8291936721877738333, guid: fb0d16a87b851f2449d80c3757566a3e, type: 3}
+      propertyPath: rayStartT
+      value: 
+      objectReference: {fileID: 330585546}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -9172,3 +9334,5 @@ SceneRoots:
   - {fileID: 1673599610}
   - {fileID: 279052091}
   - {fileID: 131733894}
+  - {fileID: 628172078}
+  - {fileID: 2018045389}

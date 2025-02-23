@@ -7,6 +7,8 @@ public class Bullet : MonoBehaviour
     [SerializeField] private float moveSpeed;
     private Vector3 moveDir;
     private bool isActive;
+    private bool isTargetedBullet;
+    private Vector3 targetPt;
 
     [Header("Time To Live Data")]
     [SerializeField] private float timeToLive;
@@ -27,9 +29,12 @@ public class Bullet : MonoBehaviour
 
     #region Set Up
  
-    internal void SetUp(Vector3 moveDir)
+    internal void SetUp(Vector3 moveDir, bool isTargetedBullet, Vector3 targetPt)
     {
         this.moveDir = moveDir;
+        this.isTargetedBullet = isTargetedBullet;
+        this.targetPt = targetPt;
+        
         timeActive = 0;
         
         isActive = true;
@@ -43,7 +48,22 @@ public class Bullet : MonoBehaviour
     {
         if (isActive)
         {
-            transform.Translate(moveDir * moveSpeed * Time.deltaTime);
+            if (isTargetedBullet)
+            {
+                transform.position = Vector3.MoveTowards(transform.position, targetPt,
+                                                         (float)(1.0f - 
+                                                                 Math.Pow(0.5f, Time.deltaTime * moveSpeed)));
+
+                if (Vector3.Distance(transform.position, targetPt) < 0.05f)
+                {
+                    isActive = false;
+                    gameObject.SetActive(false);
+                }
+            }
+            else
+            {
+                transform.Translate(moveDir * moveSpeed * Time.deltaTime);
+            }
         }
     }
 
@@ -61,7 +81,7 @@ public class Bullet : MonoBehaviour
             {
                 gameObject.SetActive(false);
             }
-    }
+        }
     }
 
     #endregion

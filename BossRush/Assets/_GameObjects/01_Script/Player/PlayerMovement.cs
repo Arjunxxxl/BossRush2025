@@ -16,18 +16,6 @@ public class PlayerMovement : MonoBehaviour
     }
     
     [System.Serializable]
-    private class DashData
-    {
-        public bool dashTriggered;
-        public bool dashActive;
-        public bool dashOnCooldown;
-        public float dashDuration;
-        public float dashTimeElapsed;
-        public float dashCoolDownDuration;
-        public float dashCoolDownTimeElapsed;
-    }
-    
-    [System.Serializable]
     private class JumpData
     {
         public bool jumpTriggered;
@@ -76,9 +64,7 @@ public class PlayerMovement : MonoBehaviour
 
     [Header("Movement Data")]
     [SerializeField] private MovementData movementData;
-
-    [Header("Dash Data")]
-    [SerializeField] private DashData dashData;
+    private bool isPlayerDashing;
     
     [Header("Jump Data")]
     [SerializeField] private JumpData jumpData;
@@ -90,20 +76,7 @@ public class PlayerMovement : MonoBehaviour
     [SerializeField] private RotationData rotationData;
 
     private CharacterController characterController;
-    private PlayerCollisionDetection playerCollisionDetection;
-    private PlayerEfxManager playerEfxManager;
-
-    private void Start()
-    {
-        Cursor.visible = false;
-        Cursor.lockState = CursorLockMode.Locked;
-        
-        characterController = GetComponent<CharacterController>();
-        playerCollisionDetection = GetComponent<PlayerCollisionDetection>();
-        playerEfxManager = GetComponent<PlayerEfxManager>();
-
-        jumpData.jumpCt = 0;
-    }
+    private Player player;
 
     private void Update()
     {
@@ -116,14 +89,6 @@ public class PlayerMovement : MonoBehaviour
         SetJumpActive();
         UpdateJumpActiveTime();
         Jump();
-
-        //Dash
-        CheckForDashTrigger();
-        Dash();
-        UpdateDashCooldown();
-        
-        //Gravity
-        ApplyGravity();
         
         //Rotation
         Rotate();
@@ -131,10 +96,29 @@ public class PlayerMovement : MonoBehaviour
 
     private void FixedUpdate()
     {
+        //Gravity
+        ApplyGravity();
+        
         //Movement
         Move();
     }
 
+    #region SetUp
+
+    internal void SetUp(Player player)
+    {
+        this.player = player;
+        
+        Cursor.visible = false;
+        Cursor.lockState = CursorLockMode.Locked;
+        
+        characterController = GetComponent<CharacterController>();
+
+        jumpData.jumpCt = 0;
+    }
+
+    #endregion
+    
     #region Input
 
     private void GetInput()
@@ -144,7 +128,6 @@ public class PlayerMovement : MonoBehaviour
         inputDir.Normalize();
 
         isWalking = Input.GetKey(KeyCode.LeftShift);
-        dashData.dashTriggered = Input.GetKeyDown(KeyCode.Q);
         jumpData.jumpTriggered = Input.GetKeyDown(KeyCode.Space);
         
         mouseMoveX = Input.GetAxis("Mouse X");
@@ -160,7 +143,7 @@ public class PlayerMovement : MonoBehaviour
         movementData.moveDir = inputDir.x * transform.right +
                                inputDir.y * transform.forward;
 
-        if (dashData.dashActive)
+        if (isPlayerDashing)
         {
             movementData.moveSpeedTarget = movementData.moveSpeedDash;
             movementData.moveSpeed = movementData.moveSpeedTarget;
@@ -171,71 +154,38 @@ public class PlayerMovement : MonoBehaviour
         }
         
         movementData.moveSpeed = Mathf.Lerp(movementData.moveSpeed, movementData.moveSpeedTarget,
-                                            Time.deltaTime * movementData.moveSpeedLerpFac);
+                                            Time.fixedUnscaledDeltaTime * movementData.moveSpeedLerpFac);
 
         movementData.moveDir *= movementData.moveSpeed;
         movementData.moveDir.y = movementData.ySpeed;
         
-        characterController.Move(movementData.moveDir * Time.deltaTime);
+        characterController.Move(movementData.moveDir * Time.fixedUnscaledDeltaTime);
     }
 
     #endregion
 
     #region Dash
-
-    private void CheckForDashTrigger()
+    
+    internal void StartDash(float dashMoveSpeed)
     {
-        if (dashData.dashTriggered && !dashData.dashActive && !dashData.dashOnCooldown)
-        {
-            dashData.dashActive = true;
-            dashData.dashOnCooldown = false;
+        isPlayerDashing = true;
+        
+        player.playerEfxManager.PlayDashEfx();
             
-            dashData.dashTimeElapsed = 0;
-            dashData.dashCoolDownTimeElapsed = 0;
-            
-            playerEfxManager.PlayDashEfx();
-            
-            PostProcessingManager.Instance.SetPostProcessingDashVisuals();
-            CameraMovement.OnPlayerDash?.Invoke(true);
-        }
+        PostProcessingManager.Instance.SetPostProcessingDashVisuals();
+        CameraMovement.OnPlayerDash?.Invoke(true);
     }
 
-    private void Dash()
+    internal void StopDash()
     {
-        if (!dashData.dashActive)
-        {
-            return;
-        }
-
-        dashData.dashTimeElapsed += Time.deltaTime;
-
-        if (dashData.dashTimeElapsed >= dashData.dashDuration)
-        {
-            dashData.dashActive = false;
-            dashData.dashOnCooldown = true;
+        isPlayerDashing = false;
+        
+        player.playerEfxManager.StopDashEfx();
             
-            playerEfxManager.StopDashEfx();
-            
-            PostProcessingManager.Instance.SetPostProcessingIdleVisuals();
-            CameraMovement.OnPlayerDash?.Invoke(false);
-        }
+        PostProcessingManager.Instance.SetPostProcessingIdleVisuals();
+        CameraMovement.OnPlayerDash?.Invoke(false);
     }
     
-    private void UpdateDashCooldown()
-    {
-        if (!dashData.dashOnCooldown)
-        {
-            return;
-        }
-
-        dashData.dashCoolDownTimeElapsed += Time.deltaTime;
-
-        if (dashData.dashCoolDownTimeElapsed >= dashData.dashCoolDownDuration)
-        {
-            dashData.dashOnCooldown = false;
-        }
-    }
-
     #endregion
     
     #region Jump
@@ -253,7 +203,7 @@ public class PlayerMovement : MonoBehaviour
     {
         if (jumpData.jump)
         {
-            jumpData.jumpBufferTimeElapsed -= Time.deltaTime;
+            jumpData.jumpBufferTimeElapsed -= Time.unscaledDeltaTime;
 
             if (jumpData.jumpBufferTimeElapsed <= 0)
             {
@@ -289,7 +239,7 @@ public class PlayerMovement : MonoBehaviour
             jumpData.jumpActive = true;
             jumpData.isJumping = true;
 
-            if (!playerCollisionDetection.IsGrounded)
+            if (!player.playerCollisionDetection.IsGrounded)
             {
                 jumpData.jumpCt = Constants.Player.PlayerMaxJumpCt;
             }
@@ -300,7 +250,7 @@ public class PlayerMovement : MonoBehaviour
     {
         if(jumpData.jumpActive)
         {
-            jumpData.jumpActiveTimeElapsed += Time.deltaTime;
+            jumpData.jumpActiveTimeElapsed += Time.unscaledDeltaTime;
 
             if(jumpData.jumpActiveTimeElapsed > jumpData.minJumpActiveDuration && !jumpData.jump)
             {
@@ -325,10 +275,10 @@ public class PlayerMovement : MonoBehaviour
     
     private void ApplyGravity()
     {
-        if (!playerCollisionDetection.IsGrounded)
+        if (!player.playerCollisionDetection.IsGrounded)
         {
             gravityData.gravity = gravityData.maxGravity;
-            movementData.ySpeed += gravityData.gravity * Time.deltaTime;
+            movementData.ySpeed += gravityData.gravity * Time.fixedUnscaledDeltaTime;
         }
         else
         {
@@ -355,7 +305,7 @@ public class PlayerMovement : MonoBehaviour
         rotationData.finalRotationAngle.y = Mathf.Repeat(rotationData.finalRotationAngle.y, 360);
 
         transform.rotation = Quaternion.Lerp(transform.rotation, Quaternion.Euler(rotationData.finalRotationAngle), 
-                                             Time.deltaTime * rotationData.rotationSpeed);
+                                             Time.unscaledDeltaTime * rotationData.rotationSpeed);
     }
     
     #endregion
