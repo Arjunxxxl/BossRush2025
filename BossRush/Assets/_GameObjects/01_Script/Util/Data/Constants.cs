@@ -4,9 +4,17 @@ public static class Constants
 {
     public static class Player
     {
-        //Jump
+        // Jump
         public static readonly float PlayerJumpBufferTime = 0.15f;
         public static readonly int PlayerMaxJumpCt = 2;
+        
+        // Gravity
+        public static readonly float MaxGravity = -25f;
+        public static readonly float MinGravity = -5f;
+        public static readonly float GroundedGravity = 0.0f;
+        
+        // Hp
+        public static readonly int MaxHp = 100;
     }
     
     public static class Weapon
@@ -14,7 +22,7 @@ public static class Constants
         // Reload
         public static readonly bool CanAutoReload = true;
         
-        //Bullet
+        // Bullet
         public static readonly bool UseTargetedBullets = false;
     }
 

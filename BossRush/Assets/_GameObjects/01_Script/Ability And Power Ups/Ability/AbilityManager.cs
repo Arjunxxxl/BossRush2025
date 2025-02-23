@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.Serialization;
 using Random = UnityEngine.Random;
 
 public class AbilityManager : MonoBehaviour
@@ -143,7 +142,6 @@ public class AbilityManager : MonoBehaviour
     private void CalcSecondaryAbility()
     {
         int randAbilityIdx = Random.Range(0, abilityPool.Count);
-        randAbilityIdx = 2;
         secondaryAbilityType = abilityPool[randAbilityIdx];
         secondaryAbilityData = abilityData.CalcAbilityData(secondaryAbilityType);
     }

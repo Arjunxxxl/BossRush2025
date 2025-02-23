@@ -115,6 +115,8 @@ public class PlayerMovement : MonoBehaviour
         characterController = GetComponent<CharacterController>();
 
         jumpData.jumpCt = 0;
+
+        SetUpGravity(Constants.Player.MaxGravity, Constants.Player.GroundedGravity);
     }
 
     #endregion
@@ -272,6 +274,17 @@ public class PlayerMovement : MonoBehaviour
     #endregion
     
     #region Gravity
+
+    private void SetUpGravity(float maxGravity, float minGravity)
+    {
+        gravityData.maxGravity = maxGravity;
+        gravityData.minGravity = minGravity;
+    }
+
+    internal void UpdateMaxGravity(float gravityVal)
+    {
+        gravityData.maxGravity = gravityVal;
+    }
     
     private void ApplyGravity()
     {

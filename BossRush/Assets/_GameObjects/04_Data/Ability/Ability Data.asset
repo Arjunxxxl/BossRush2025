@@ -35,8 +35,8 @@ MonoBehaviour:
     abilityName: Slow Fall
     abilityUiIcon: {fileID: 0}
     abilityActiveDuration: 5
-    abilityCooldownDuration: 15
-    abilityEffectiveness: 0.5
+    abilityCooldownDuration: 1
+    abilityEffectiveness: -5
   - abilityType: 3
     abilityName: Slow Fall
     abilityUiIcon: {fileID: 0}
