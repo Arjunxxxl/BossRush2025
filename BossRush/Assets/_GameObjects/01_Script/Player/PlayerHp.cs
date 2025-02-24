@@ -16,6 +16,8 @@ public class PlayerHp : MonoBehaviour
 
         HpLeft = Constants.Player.MaxHp;
         isShieldActivated = false;
+        
+        GameplayMenu.Instance.PlayerHpUi.SetUp(HpLeft, Constants.Player.MaxHp);
     }
 
     #endregion
@@ -30,11 +32,13 @@ public class PlayerHp : MonoBehaviour
         }
 
         HpLeft--;
-
+        
         if (HpLeft <= 0)
         {
             // TODO: Implement player death
         }
+        
+        GameplayMenu.Instance.PlayerHpUi.UpdateHpUi(HpLeft);
     }
 
     #endregion
@@ -49,6 +53,8 @@ public class PlayerHp : MonoBehaviour
         {
             HpLeft = Constants.Player.MaxHp;
         }
+        
+        GameplayMenu.Instance.PlayerHpUi.UpdateHpUi(HpLeft);
     }
 
     #endregion

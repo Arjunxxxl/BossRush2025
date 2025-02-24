@@ -5,10 +5,12 @@ public class GameplayMenu : MonoBehaviour
 {
     [Header("Ref")]
     [SerializeField] private WeaponUi weaponUi;
+    [SerializeField] private PlayerHpUi playerHpUi;
 
     #region Properties
 
     public WeaponUi WeaponUi => weaponUi;
+    public PlayerHpUi PlayerHpUi => playerHpUi;
 
     #endregion
 
